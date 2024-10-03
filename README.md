@@ -81,7 +81,7 @@
 
 **트랜잭션 프록시 동작 방식**
 
-![Uploading Screenshot 2024-10-03 at 16.10.09.png…]()
+<img width="908" alt="Screenshot 2024-10-03 at 16 10 09" src="https://github.com/user-attachments/assets/7c23f45b-f0d7-4811-946e-41e3987a6682">
 
 클라이언트가 주입 받은 `basicService$$CGLIB` 는 트랜잭션을 적용하는 프록시이다.
 
