@@ -167,7 +167,7 @@ CGLIB 방식은 스프링 핵심 원리 - 고급편에서 다룬다.
 
 만약 프록시를 거치지 않고 대상 객체를 직접 호출하게 되면 AOP가 적용되지 않고, 트랜잭션도 적용되지 않는다.
 
-
+<img width="927" alt="Screenshot 2024-10-03 at 16 26 45" src="https://github.com/user-attachments/assets/de455104-f2f2-4354-b70a-56762bddec8d">
 
 AOP를 적용하면 스프링은 대상 객체 대신에 프록시를 스프링 빈으로 등록한다. 
 
