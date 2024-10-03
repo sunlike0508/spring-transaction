@@ -225,6 +225,8 @@ AOP를 적용하면 스프링은 대상 객체 대신에 프록시를 스프링 
 
 ## 트랜잭션 AOP 주의 사항 - 프록시 내부 호출2
 
+### 클래스로 분리
+
 <img width="936" alt="Screenshot 2024-10-03 at 16 48 30" src="https://github.com/user-attachments/assets/bee78843-17e4-4ca8-8061-739408167be9">
 
 실제 호출되는 흐름을 분석해보자.
@@ -235,16 +237,45 @@ AOP를 적용하면 스프링은 대상 객체 대신에 프록시를 스프링 
 4. `internalService` 는 트랜잭션 프록시이다. `internal()` 메서드에 `@Transactional` 이 붙어 있으 므로 트랜잭션 프록시는 트랜잭션을 적용한다.
 5. 트랜잭션 적용 후 실제 `internalService` 객체 인스턴스의 `internal()` 을 호출한다.
 
+### public 메서드만 트랜잭션 적용
 
+스프링의 트랜잭션 AOP 기능은 `public` 메서드에만 트랜잭션을 적용하도록 기본 설정이 되어있다. 
 
+그래서 `protected` , `private` , `package-visible` 에는 트랜잭션이 적용되지 않는다. 
 
+생각해보면 `protected` ,`package-visible` 도 외부에서 호출이 가능하다. 
 
+따라서 이 부분은 앞서 설명한 프록시의 내부 호출과는 무관하고, 스프링이 막아둔 것이다.
 
+스프링이 `public` 에만 트랜잭션을 적용하는 이유는 다음과 같다. 
+```java
+@Transactional
+public class Hello {
+    public method1();
+    method2();
+    protected method3();
+    private method4();
+}
+```
+이렇게 클래스 레벨에 트랜잭션을 적용하면 모든 메서드에 트랜잭션이 걸릴 수 있다. 
 
+그러면 트랜잭션을 의도하지 않는 곳까지 트랜잭션이 과도하게 적용된다. 
 
+트랜잭션은 주로 비즈니스 로직의 시작점에 걸기 때문에 대부분 외부에 열어준 곳을 시작점으로 사용한다. 
 
+이런 이유로 `public` 메서드에만 트랜잭션을 적용하도록 설정되어 있다.
 
+앞서 실행했던 코드를 `package-visible` 로 변경해보면 적용되지 않는 것을 확인할 수 있다.
 
+참고로 `public` 이 아닌곳에 `@Transactional` 이 붙어 있으면 예외가 발생하지는 않고, 트랜잭션 적용만 무시된다.
+
+**참고: 스프링 부트 3.0**
+
+스프링 부트 3.0 부터는 `protected` , `package-visible` (default 접근제한자)에도 트랜잭션이 적용된다.
+
+## 트랜잭션 AOP 주의 사항 - 초기화 시점
+
+스프링 초기화 시점에는 트랜잭션 AOP가 적용되지 않을 수 있다.
 
 
 
