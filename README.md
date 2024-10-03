@@ -31,6 +31,7 @@
 
 **프록시 도입 후 전체 과정**
 
+<img width="915" alt="Screenshot 2024-10-03 at 15 53 58" src="https://github.com/user-attachments/assets/de15d82e-2b5e-48ff-993e-9a5ba5b13710">
 
 트랜잭션은 커넥션에 `con.setAutocommit(false)` 를 지정하면서 시작한다. 
 
@@ -59,6 +60,9 @@
 ## 트랜잭션 적용 확인
 
 **스프링 컨테이너에 트랜잭션 프록시 등록**
+
+<img width="900" alt="Screenshot 2024-10-03 at 16 07 12" src="https://github.com/user-attachments/assets/6923387f-9be2-4fa8-802c-8d96a8ef6c67">
+
 
 `@Transactional` 애노테이션이 특정 클래스나 메서드에 하나라도 있으면 트랜잭션 AOP는 프록시를 만들어서 스프링 컨테이너에 등록한다. 
 
