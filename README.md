@@ -223,3 +223,41 @@ AOP를 적용하면 스프링은 대상 객체 대신에 프록시를 스프링 
 
 가장 단순한 방법은 내부 호출을 피하기 위해 `internal()` 메서드를 별도의 클래스로 분리하는 것이다.
 
+## 트랜잭션 AOP 주의 사항 - 프록시 내부 호출2
+
+
+
+실제 호출되는 흐름을 분석해보자.
+1. 클라이언트인 테스트 코드는 `callService.external()` 을 호출한다.
+2. `callService` 는 실제 `callService` 객체 인스턴스이다.
+3. `callService` 는 주입 받은 `internalService.internal()` 을 호출한다.
+4. `internalService` 는 트랜잭션 프록시이다. `internal()` 메서드에 `@Transactional` 이 붙어 있으 므로 트랜잭션 프록시는 트랜잭션을 적용한다.
+5. 트랜잭션 적용 후 실제 `internalService` 객체 인스턴스의 `internal()` 을 호출한다.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
