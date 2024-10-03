@@ -184,6 +184,8 @@ AOP를 적용하면 스프링은 대상 객체 대신에 프록시를 스프링 
 그리고 `callService` 빈을 주입 받으면 트랜잭션 프록시 객체가 대신 주입된다.
 
 * **internalCall() 실행**
+ 
+<img width="910" alt="Screenshot 2024-10-03 at 16 37 05" src="https://github.com/user-attachments/assets/49337e10-940f-4d12-9104-b2d24a4c39b7">
 
 1. 클라이언트인 테스트 코드는 `callService.internal()` 을 호출한다. 여기서 `callService` 는 트랜잭션 프록시이다.
 2. `callService` 의 트랜잭션 프록시가 호출된다.
@@ -194,6 +196,8 @@ AOP를 적용하면 스프링은 대상 객체 대신에 프록시를 스프링 
 
 
 * **externalCall() 실행**
+
+<img width="912" alt="Screenshot 2024-10-03 at 16 40 01" src="https://github.com/user-attachments/assets/79c4ebf1-9c8f-416f-9236-732be5456357">
 
 1. 클라이언트인 테스트 코드는 `callService.external()` 을 호출한다. 여기서 `callService` 는 트랜 잭션 프록시이다.
 2. `callService` 의 트랜잭션 프록시가 호출된다.
