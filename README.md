@@ -428,6 +428,7 @@ JPA 관련 내용은 JPA를 더 학습해야 이해할 수 있으므로 지금�
 
 예외가 발생했는데,내부에서 예외를 처리하지 못하고, 트랜잭션 범위(`@Transactional가 적용된 AOP`) 밖으로 예외를 던지면 어떻게 될까?
 
+<img width="920" alt="Screenshot 2024-10-03 at 21 03 05" src="https://github.com/user-attachments/assets/a40bead1-ea24-4d2b-9a79-0cb3b37b2a93">
 
 예외 발생시 스프링 트랜잭션 AOP는 예외의 종류에 따라 트랜잭션을 커밋하거나 롤백한다.
 
