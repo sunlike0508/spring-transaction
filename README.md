@@ -225,9 +225,10 @@ AOP를 적용하면 스프링은 대상 객체 대신에 프록시를 스프링 
 
 ## 트랜잭션 AOP 주의 사항 - 프록시 내부 호출2
 
-
+<img width="936" alt="Screenshot 2024-10-03 at 16 48 30" src="https://github.com/user-attachments/assets/bee78843-17e4-4ca8-8061-739408167be9">
 
 실제 호출되는 흐름을 분석해보자.
+
 1. 클라이언트인 테스트 코드는 `callService.external()` 을 호출한다.
 2. `callService` 는 실제 `callService` 객체 인스턴스이다.
 3. `callService` 는 주입 받은 `internalService.internal()` 을 호출한다.
