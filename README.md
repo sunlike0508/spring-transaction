@@ -754,6 +754,8 @@ ringtx.propagation.BasicTxTest   : 외부 트랜잭션 커밋
 
 
 
+<img width="708" alt="Screenshot 2024-10-05 at 12 15 03" src="https://github.com/user-attachments/assets/611182c1-62ff-450a-ae2d-092da09e3980">
+<img width="688" alt="Screenshot 2024-10-05 at 12 10 01" src="https://github.com/user-attachments/assets/beaaea07-4fae-46b8-908d-c149598efe44">
 
 
 
