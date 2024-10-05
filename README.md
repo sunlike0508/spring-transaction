@@ -737,6 +737,7 @@ ringtx.propagation.BasicTxTest   : 외부 트랜잭션 커밋
 
 따라서 이 경우 내부 트랜잭션이 커밋했어도, 내부 트랜잭션 안에서 저장한 데이터도 모두 함께 롤백된다.
 
+<img width="707" alt="Screenshot 2024-10-05 at 12 08 29" src="https://github.com/user-attachments/assets/4816f934-b495-44d8-8df4-edb28749eaec">
 
 **응답 흐름 - 내부 트랜잭션**
 
