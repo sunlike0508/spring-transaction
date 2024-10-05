@@ -563,7 +563,7 @@ transaction`
 
 **외부 트랜잭션이 수행중인데, 내부 트랜잭션이 추가로 수행됨**
 
-
+<img width="698" alt="Screenshot 2024-10-05 at 11 36 59" src="https://github.com/user-attachments/assets/dff92d37-fb0e-4bd5-ad37-34ccbbd4d2a2">
 
 외부 트랜잭션이 수행중이고, 아직 끝나지 않았는데, 내부 트랜잭션이 수행된다.
 
@@ -573,6 +573,7 @@ transaction`
 
 내부 트랜잭션은 외부에 트랜잭션이 수행되고 있는 도중에 호출되기 때문에 마치 내부에 있는 것 처럼 보여서 내부 트랜잭션이라 한다.
 
+<img width="690" alt="Screenshot 2024-10-05 at 11 36 30" src="https://github.com/user-attachments/assets/bcaa6c50-0a21-4471-947a-55eb88326dd1">
 
 스프링에서 이 경우 외부 트랜잭션과 내부 트랜잭션을 묶어서 하나의 트랜잭션을 만들어준다. 
 
@@ -582,7 +583,7 @@ transaction`
 
 **물리 트랜잭션, 논리 트랜잭션**
 
-
+<img width="687" alt="Screenshot 2024-10-05 at 11 36 06" src="https://github.com/user-attachments/assets/de12c269-c5df-406e-ade9-d5a31cacbf0b">
 
 
 
