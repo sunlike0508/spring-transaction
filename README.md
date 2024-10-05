@@ -731,6 +731,7 @@ ringtx.propagation.BasicTxTest   : 외부 트랜잭션 커밋
 
 ## 전파 5
 
+<img width="690" alt="Screenshot 2024-10-05 at 12 02 15" src="https://github.com/user-attachments/assets/01ffba3d-a672-4c63-a1cf-e07cf46cd2a3">
 
 논리 트랜잭션이 하나라도 롤백되면 전체 물리 트랜잭션은 롤백된다.
 
