@@ -615,6 +615,7 @@ transaction`
 
 풀어서 설명하면 이렇게 된다. 모든 트랜잭션 매니저를 커밋해야 물리 트랜잭션이 커밋된다. 하나의 트랜잭션 매니저라도 롤백하면 물리 트랜잭션은 롤백된다.
 
+<img width="687" alt="Screenshot 2024-10-05 at 11 42 14" src="https://github.com/user-attachments/assets/2b5b21c1-b403-4c90-b243-1038d31812bc">
 
 
 
