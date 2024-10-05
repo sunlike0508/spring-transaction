@@ -760,7 +760,29 @@ ringtx.propagation.BasicTxTest   : 외부 트랜잭션 커밋
 
 전체를 롤백해야 하는데, 스프링은 이 문제를 어떻게 해결할까? 지금부터 함께 살펴보자.
 
-<img width="708" alt="Screenshot 2024-10-05 at 12 15 03" src="https://github.com/user-attachments/assets/611182c1-62ff-450a-ae2d-092da09e3980">
+```shell
+외부 트랜잭션 시작
+Creating new transaction with name [null]:
+PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+Acquired Connection [HikariProxyConnection@220038608 wrapping conn0] for JDBC
+transaction
+Switching JDBC Connection [HikariProxyConnection@220038608 wrapping conn0] to
+manual commit
+내부 트랜잭션 시작
+Participating in existing transaction
+내부 트랜잭션 롤백
+Participating transaction failed - marking existing transaction as rollback-only
+Setting JDBC transaction [HikariProxyConnection@220038608 wrapping conn0]
+rollback-only
+외부 트랜잭션 커밋
+Global transaction is marked as rollback-only but transactional code requested
+commit
+Initiating transaction rollback
+Rolling back JDBC transaction on Connection [HikariProxyConnection@220038608
+wrapping conn0]
+Releasing JDBC Connection [HikariProxyConnection@220038608 wrapping conn0] after
+transaction
+```
 
 외부 트랜잭션 시작
 
@@ -783,6 +805,8 @@ ringtx.propagation.BasicTxTest   : 외부 트랜잭션 커밋
 `Global transaction is marked as rollback-only`
 
 커밋을 호출했지만, 전체 트랜잭션이 롤백 전용으로 표시되어 있다. 따라서 물리 트랜잭션을 롤백한다.
+
+<img width="708" alt="Screenshot 2024-10-05 at 12 15 03" src="https://github.com/user-attachments/assets/611182c1-62ff-450a-ae2d-092da09e3980">
 
 **응답 흐름 - 내부 트랜잭션**
 
@@ -813,10 +837,32 @@ ringtx.propagation.BasicTxTest   : 외부 트랜잭션 커밋
 
 외부 트랜잭션을 커밋할 때 롤백 전용 마크를 확인한다. 롤백 전용 마크가 표시되어 있으면 물리 트랜잭션을 롤백 하고, `UnexpectedRollbackException` 예외를 던진다.
 
+## 전파7 - REQUIRES_NEW
+
+이번에는 외부 트랜잭션과 내부 트랜잭션을 완전히 분리해서 사용하는 방법에 대해서 알아보자.
+
+외부 트랜잭션과 내부 트랜잭션을 완전히 분리해서 각각 별도의 물리 트랜잭션을 사용하는 방법이다. 
+
+그래서 커밋과 롤 백도 각각 별도로 이루어지게 된다.
+
+이 방법은 내부 트랜잭션에 문제가 발생해서 롤백해도, 외부 트랜잭션에는 영향을 주지 않는다. 
+
+반대로 외부 트랜잭션에 문제가 발생해도 내부 트랜잭션에 영향을 주지 않는다.
+
+이 방법을 사용하는 구체적인 예는 이후에 알아보고 지금은 작동 원리를 이해해보자.
+
+**REQUIRES_NEW**
 
 
+이렇게 물리 트랜잭션을 분리하려면 내부 트랜잭션을 시작할 때 `REQUIRES_NEW` 옵션을 사용하면 된다. 
 
+외부 트랜잭션과 내부 트랜잭션이 각각 별도의 물리 트랜잭션을 가진다.
 
+별도의 물리 트랜잭션을 가진다는 뜻은 DB 커넥션을 따로 사용한다는 뜻이다.
+
+이 경우 내부 트랜잭션이 롤백되면서 로직 2가 롤백되어도 로직 1에서 저장한 데이터에는 영향을 주지 않는다. 
+
+최종적으로 로직2는 롤백되고, 로직1은 커밋된다.
 
 
 
