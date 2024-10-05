@@ -847,6 +847,7 @@ Releasing JDBC Connection [HikariProxyConnection@220038608 wrapping conn0] after
 
 **REQUIRES_NEW**
 
+<img width="684" alt="Screenshot 2024-10-05 at 12 29 05" src="https://github.com/user-attachments/assets/60383b28-6627-42ff-b47b-40de5bbe37e1">
 
 이렇게 물리 트랜잭션을 분리하려면 내부 트랜잭션을 시작할 때 `REQUIRES_NEW` 옵션을 사용하면 된다. 
 
@@ -857,7 +858,6 @@ Releasing JDBC Connection [HikariProxyConnection@220038608 wrapping conn0] after
 이 경우 내부 트랜잭션이 롤백되면서 로직 2가 롤백되어도 로직 1에서 저장한 데이터에는 영향을 주지 않는다. 
 
 최종적으로 로직2는 롤백되고, 로직1은 커밋된다.
-
 
 **실행 결과 - inner_rollback_requires_new()** 
 
@@ -908,8 +908,7 @@ Releasing JDBC Connection [HikariProxyConnection@1064414847 wrapping conn0] afte
 
 외부 트랜잭션은 신규 트랜잭션이기 때문에 실제 물리 트랜잭션을 커밋한다. 외부 트랜잭션은 `conn0` 를 사용하므로 `conn0` 에 물리 커밋을 수행한다.
 
-
-
+<img width="694" alt="Screenshot 2024-10-05 at 12 29 10" src="https://github.com/user-attachments/assets/da3a6d31-fa37-4f87-acca-0a2db75a224d">
 
 **요청 흐름 - 외부 트랜잭션**
 1. `txManager.getTransaction()` 를 호출해서 외부 트랜잭션을 시작한다.
