@@ -416,9 +416,7 @@ JPA 관련 내용은 JPA를 더 학습해야 이해할 수 있으므로 지금�
 
 읽기, 쓰기(마스터, 슬레이브) 데이터베이스를 구분해서 요청한다. 
 
-읽기 전용 트랜잭션의 경우 읽기(슬레이 브) 데이터베이스의 커넥션을 획득해서 사용한다.
-
-예) https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-source-replica-replication-connection.html
+읽기 전용 트랜잭션의 경우 읽기(슬레이브) 데이터베이스의 커넥션을 획득해서 사용한다.
 
 **데이터베이스**
 
@@ -476,9 +474,69 @@ JPA 관련 내용은 JPA를 더 학습해야 이해할 수 있으므로 지금�
 
 그리고 비즈니스 예 외는 매우 중요하고, 반드시 처리해야 하는 경우가 많으므로 체크 예외를 고려할 수 있다.
 
+## 스프링 트랜잭션 전파
+
+### 두 번 사용
+
+```shell
+DataSourceTransactionManager     : Committing JDBC transaction on Connection [HikariProxyConnection@1231949725 wrapping conn0: url=jdbc:h2:mem:e9b42f96-4958-41c1-b3d2-532b7500858a user=SA]
+DataSourceTransactionManager     : Releasing JDBC Connection [HikariProxyConnection@1231949725 wrapping conn0: url=jdbc:h2:mem:e9b42f96-4958-41c1-b3d2-532b7500858a user=SA] after transaction
+hello.springtx.propagation.BasicTxTest   : transaction222 start
+DataSourceTransactionManager     : Creating new transaction with name [null]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+DataSourceTransactionManager     : Acquired Connection [HikariProxyConnection@603273695 wrapping conn0: url=jdbc:h2:mem:e9b42f96-4958-41c1-b3d2-532b7500858a user=SA] for JDBC transaction
+DataSourceTransactionManager     : Switching JDBC Connection [HikariProxyConnection@603273695 wrapping conn0: url=jdbc:h2:mem:e9b42f96-4958-41c1-b3d2-532b7500858a user=SA] to manual commit
+hello.springtx.propagation.BasicTxTest   : transaction22 commit start
+DataSourceTransactionManager     : Initiating transaction commit
+DataSourceTransactionManager     : Committing JDBC transaction on Connection [HikariProxyConnection@603273695 wrapping conn0: url=jdbc:h2:mem:e9b42f96-4958-41c1-b3d2-532b7500858a user=SA]
+DataSourceTransactionManager     : Releasing JDBC Connection [HikariProxyConnection@603273695 wrapping conn0: url=jdbc:h2:mem:e9b42f96-4958-41c1-b3d2-532b7500858a user=SA] after transaction
+```
+
+**트랜잭션1**
+`Acquired Connection [HikariProxyConnection@1064414847 wrapping conn0] for JDBC
+transaction`
+트랜잭션1을 시작하고, 커넥션 풀에서 `conn0` 커넥션을 획득했다.
+`Releasing JDBC Connection [HikariProxyConnection@1064414847 wrapping conn0] after transaction`
+트랜잭션1을 커밋하고, 커넥션 풀에 `conn0` 커넥션을 반납했다.
+
+**트랜잭션2**
+`Acquired Connection [HikariProxyConnection@ 778350106 wrapping conn0] for JDBC
+transaction`
+트랜잭션2을 시작하고, 커넥션 풀에서 `conn0` 커넥션을 획득했다.
+`Releasing JDBC Connection [HikariProxyConnection@ 778350106 wrapping conn0] after transaction`
+트랜잭션2을 커밋하고, 커넥션 풀에 `conn0` 커넥션을 반납했다.
+
+**주의!**
+로그를 보면 트랜잭션1과 트랜잭션2가 같은 `conn0` 커넥션을 사용중이다. 이것은 중간에 커넥션 풀 때문에 그런 것이다. 
+
+트랜잭션1은 `conn0` 커넥션을 모두 사용하고 커넥션 풀에 반납까지 완료했다. 이후에 트랜잭션2가 `conn0` 를 커넥션 풀에서 획득한 것이다. 
+
+따라서 둘은 완전히 다른 커넥션으로 인지하는 것이 맞다.
+
+그렇다면 둘을 구분할 수 있는 다른 방법은 없을까?
+
+히카리 커넥션 풀에서 커넥션을 획득하면 실제 커넥션을 그대로 반환하는 것이 아니라 내부 관리를 위해 히카리 프록시 커넥션이라는 객체를 생성해서 반환한다. 
+
+물론 내부에는 실제 커넥션이 포함되어 있다. 
+
+이 객체의 주소를 확인하면 커넥션 풀에서 획득한 커넥션을 구분할 수 있다.
+
+* HikariProxyConnection@1064414847
+* HikariProxyConnection@778350106
+
+
+히카리 커넥션풀이 반환해주는 커넥션을 다루는 프록시 객체의 주소가 트랜잭션1은 `HikariProxyConnection@1000000` 이고, 
+
+트랜잭션2는 `HikariProxyConnection@2000000` 으로 서로 다른 것을 확인할 수 있다.
+
+결과적으로 `conn0` 을 통해 커넥션이 재사용 된 것을 확인할 수 있고, `HikariProxyConnection@1064414847` ,
+
+`HikariProxyConnection@778350106` 을 통해 각각 커넥션 풀에서 커넥션을 조회한 것을 확인할 수 있다.
 
 
 
+트랜잭션이 각각 수행되면서 사용되는 DB 커넥션도 각각 다르다.
+
+이 경우 트랜잭션을 각자 관리하기 때문에 전체 트랜잭션을 묶을 수 없다. 예를 들어서 트랜잭션1이 커밋하고, 트랜잭션2가 롤백하는 경우 트랜잭션1에서 저장한 데이터는 커밋되고, 트랜잭션2에서 저장한 데이터는 롤백된다. 다음 예제를 확인해보자.
 
 
 
