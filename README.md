@@ -764,24 +764,18 @@ ringtx.propagation.BasicTxTest   : 외부 트랜잭션 커밋
 외부 트랜잭션 시작
 Creating new transaction with name [null]:
 PROPAGATION_REQUIRED,ISOLATION_DEFAULT
-Acquired Connection [HikariProxyConnection@220038608 wrapping conn0] for JDBC
-transaction
-Switching JDBC Connection [HikariProxyConnection@220038608 wrapping conn0] to
-manual commit
+Acquired Connection [HikariProxyConnection@220038608 wrapping conn0] for JDBC transaction
+Switching JDBC Connection [HikariProxyConnection@220038608 wrapping conn0] to manual commit
 내부 트랜잭션 시작
 Participating in existing transaction
 내부 트랜잭션 롤백
 Participating transaction failed - marking existing transaction as rollback-only
-Setting JDBC transaction [HikariProxyConnection@220038608 wrapping conn0]
-rollback-only
+Setting JDBC transaction [HikariProxyConnection@220038608 wrapping conn0] rollback-only
 외부 트랜잭션 커밋
-Global transaction is marked as rollback-only but transactional code requested
-commit
+Global transaction is marked as rollback-only but transactional code requested commit
 Initiating transaction rollback
-Rolling back JDBC transaction on Connection [HikariProxyConnection@220038608
-wrapping conn0]
-Releasing JDBC Connection [HikariProxyConnection@220038608 wrapping conn0] after
-transaction
+Rolling back JDBC transaction on Connection [HikariProxyConnection@220038608 wrapping conn0]
+Releasing JDBC Connection [HikariProxyConnection@220038608 wrapping conn0] after transaction
 ```
 
 외부 트랜잭션 시작
@@ -865,12 +859,74 @@ transaction
 최종적으로 로직2는 롤백되고, 로직1은 커밋된다.
 
 
+**실행 결과 - inner_rollback_requires_new()** 
+
+```shell
+외부 트랜잭션 시작
+Creating new transaction with name [null]:
+PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+Acquired Connection [HikariProxyConnection@1064414847 wrapping conn0] for JDBC transaction
+Switching JDBC Connection [HikariProxyConnection@1064414847 wrapping conn0] to manual commit
+outer.isNewTransaction()=true
+내부 트랜잭션 시작
+Suspending current transaction, creating new transaction with name [null]
+Acquired Connection [HikariProxyConnection@778350106 wrapping conn1] for JDBC transaction
+Switching JDBC Connection [HikariProxyConnection@778350106 wrapping conn1] to manual commit
+inner.isNewTransaction()=true
+내부 트랜잭션 롤백
+Initiating transaction rollback
+Rolling back JDBC transaction on Connection [HikariProxyConnection@778350106 wrapping conn1]
+Releasing JDBC Connection [HikariProxyConnection@778350106 wrapping conn1] after transaction
+Resuming suspended transaction after completion of inner transaction
+외부 트랜잭션 커밋
+Initiating transaction commit
+Committing JDBC transaction on Connection [HikariProxyConnection@1064414847 wrapping conn0]
+Releasing JDBC Connection [HikariProxyConnection@1064414847 wrapping conn0] after transaction
+```
+
+**외부 트랜잭션 시작**
+
+외부 트랜잭션을 시작하면서 `conn0` 를 획득하고 `manual commit` 으로 변경해서 물리 트랜잭션을 시작한다. 
+
+외부 트랜잭션은 신규 트랜잭션이다.( `outer.isNewTransaction()=true` )
+
+**내부 트랜잭션 시작**
+
+내부 트랜잭션을 시작하면서 `conn1` 를 획득하고 `manual commit` 으로 변경해서 물리 트랜잭션을 시작한다. 
+
+내부 트랜잭션은 외부 트랜잭션에 참여하는 것이 아니라, `PROPAGATION_REQUIRES_NEW` 옵션을 사용했기 때문에 완전히 새로운 신규 트랜잭션으로 생성된다.( `inner.isNewTransaction()=true` )
+
+**내부 트랜잭션 롤백**
+
+내부 트랜잭션을 롤백한다.
+
+내부 트랜잭션은 신규 트랜잭션이기 때문에 실제 물리 트랜잭션을 롤백한다. 내부 트랜잭션은 `conn1` 을 사용하므로 `conn1` 에 물리 롤백을 수행한다.
+
+**외부 트랜잭션 커밋**
+
+외부 트랜잭션을 커밋한다.
+
+외부 트랜잭션은 신규 트랜잭션이기 때문에 실제 물리 트랜잭션을 커밋한다. 외부 트랜잭션은 `conn0` 를 사용하므로 `conn0` 에 물리 커밋을 수행한다.
 
 
 
 
-
-
+**요청 흐름 - 외부 트랜잭션**
+1. `txManager.getTransaction()` 를 호출해서 외부 트랜잭션을 시작한다.
+2. 트랜잭션 매니저는 데이터소스를 통해 커넥션을 생성한다.
+3. 생성한 커넥션을 수동 커밋 모드( `setAutoCommit(false)` )로 설정한다. - **물리 트랜잭션 시작**
+4. 트랜잭션 매니저는 트랜잭션 동기화 매니저에 커넥션을 보관한다.
+5. 트랜잭션 매니저는 트랜잭션을 생성한 결과를 `TransactionStatus` 에 담아서 반환하는데, 여기에 신규
+   트랜잭션의 여부가 담겨 있다. `isNewTransaction` 를 통해 신규 트랜잭션 여부를 확인할 수 있다. 트랜
+   잭션을 처음 시작했으므로 신규 트랜잭션이다.( `true` )
+6. 로직1이 사용되고, 커넥션이 필요한 경우 트랜잭션 동기화 매니저를 통해 트랜잭션이 적용된 커넥션을 획득
+   해서 사용한다.
+   **요청 흐름 - 내부 트랜잭션**
+7. **REQUIRES_NEW 옵션**과 함께 `txManager.getTransaction()` 를 호출해서 내부 트랜잭션을 시작
+   한다.
+   트랜잭션 매니저는 `REQUIRES_NEW` 옵션을 확인하고, 기존 트랜잭션에 참여하는 것이 아니라 새로운 트 랜잭션을 시작한다.
+8. 트랜잭션 매니저는 데이터소스를 통해 커넥션을 생성한다.
+9. 생성한 커넥션을 수동 커밋 모드( `setAutoCommit(false)` )로 설정한다. - **물리 트랜잭션 시작**
 
 
 
