@@ -60,6 +60,19 @@ public class BasicTxTest {
         log.info("transaction22 commit start");
         transactionManager.commit(status2);
     }
+
+    @Test
+    void commit3() {
+        log.info("transaction111 start");
+        TransactionStatus status = this.transactionManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("transaction111 commit start");
+        transactionManager.commit(status);
+
+        log.info("transaction222 start");
+        TransactionStatus status2 = this.transactionManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("transaction22 rollback start");
+        transactionManager.rollback(status2);
+    }
 }
 
 
