@@ -533,6 +533,9 @@ transaction`
 `HikariProxyConnection@778350106` 을 통해 각각 커넥션 풀에서 커넥션을 조회한 것을 확인할 수 있다.
 
 
+<img width="700" alt="Screenshot 2024-10-05 at 11 28 13" src="https://github.com/user-attachments/assets/911b722b-8003-4834-9ad5-2a42d18c2a91">
+
+<img width="726" alt="Screenshot 2024-10-05 at 11 28 18" src="https://github.com/user-attachments/assets/27cdfe51-2a8c-4710-89a2-d565b10d28ee">
 
 트랜잭션이 각각 수행되면서 사용되는 DB 커넥션도 각각 다르다.
 
