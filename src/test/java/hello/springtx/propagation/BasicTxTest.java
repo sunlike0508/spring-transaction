@@ -89,6 +89,23 @@ public class BasicTxTest {
         log.info("외부 트랜잭션 커밋");
         transactionManager.commit(outer);
     }
+
+
+    @Test
+    void commit5() {
+        log.info("외부 트랜잭션 시작");
+        TransactionStatus outer = this.transactionManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("outer.inNew() = {}", outer.isNewTransaction());
+
+        log.info("내부 트랜잭션 시작");
+        TransactionStatus innter = this.transactionManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("innter.inNew() = {}", innter.isNewTransaction());
+        log.info("내부 트랜잭션 커밋");
+        transactionManager.commit(innter);
+
+        log.info("외부 트랜잭션 로오올백");
+        transactionManager.rollback(outer);
+    }
 }
 
 
