@@ -938,8 +938,7 @@ Releasing JDBC Connection [HikariProxyConnection@1064414847 wrapping conn0] afte
 12. 로직2가 사용되고, 커넥션이 필요한 경우 트랜잭션 동기화 매니저에 있는 `con2` 커넥션을 획득해서 사용한
     다.
 
-
-
+<img width="697" alt="Screenshot 2024-10-05 at 12 32 12" src="https://github.com/user-attachments/assets/1f1c9031-d07b-4b2f-bb22-590240e55319">
 
 **응답 흐름 - 내부 트랜잭션**
 1. 로직2가 끝나고 트랜잭션 매니저를 통해 내부 트랜잭션을 롤백한다. (로직2에 문제가 있어서 롤백한다고 가
